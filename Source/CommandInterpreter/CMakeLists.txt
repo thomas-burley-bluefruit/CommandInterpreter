@@ -1,6 +1,8 @@
 set(NAME CommandInterpreter)
 
 set(SOURCES
+        Command.cpp
+        Command.h        
         CommandInterpreter.cpp
         CommandInterpreter.h
         )

@@ -1,0 +1,7 @@
+[sender].[target]:[command] [arg1]...
+0.1:led on
+0.1:OK
+0.1:led off
+0.1:OK
+0.1:led on
+0.1:OK
