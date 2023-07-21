@@ -1,27 +1,121 @@
 #include "CommandInterpreter.h"
-#include <cstring>
-#include <iostream>
+#include <string>
 
 CommandInterpreter::CommandInterpreter() {}
 
 void CommandInterpreter::Interpret(Command& command)
 {
-    char commandName[Command::MaxRawCommandLength];
-    for(size_t i = 0; i < Command::MaxRawCommandLength; i++)
+    size_t commandIndex = 0;
+    auto& rawCommand = command.GetRawCommand();
+
+    // Sender
+    uint32_t sender = 0;
+    if (!ExtractInteger(rawCommand, commandIndex, sender))
     {
-        commandName[i] = command.mRawCommand[i];
+        return;
+    }
+    command.SetSender(sender);
+
+    // Skip separators
+    if (!FindNextNonSeparator(commandIndex, rawCommand))
+    {
+        return;
     }
 
-    if (strncmp(commandName, "Id", Command::MaxRawCommandLength))
-        command.SetName(CommandNames::Id);
-    else
-        command.SetName(CommandNames::None);
+    // Target
+    uint32_t target = 0;
+    if (!ExtractInteger(rawCommand, commandIndex, target))
+    {
+        return;
+    }
+    command.SetTarget(target);
 
-    std::cout << "command Name: " << commandName << '\n';
+    // Skip separators
+    if (!FindNextNonSeparator(commandIndex, rawCommand))
+    {
+        return;
+    }
 
-    // mRawCommandBegin = rawCommand.begin();
-    // mRawCommandEnd = rawCommand.end();
-    // ExtractName(command);
+    // Command name
+    size_t commandNamePartEndIndex = commandIndex;
+    if (!FindNextSeparator(commandNamePartEndIndex, rawCommand))
+    {
+        return;
+    }
+
+    rawCommand[commandNamePartEndIndex] = '\0';
+    const char* commandNameString = &rawCommand[commandIndex];
+    auto commandName = CommandNames::none;
+
+    if (!StringToCommandName(commandNameString, commandName))
+    {
+        return;
+    }
+    command.SetName(commandName);
+
+    // command.SetArgument(command.GetArgCount(), commandIndex);
+}
+
+bool CommandInterpreter::FindNextNonSeparator(size_t& startIndex, Command::RawCommand& command) const
+{
+    if (startIndex >= Command::MaxRawCommandLength)
+    {
+        return false;
+    }
+
+    for (; startIndex < Command::MaxRawCommandLength; ++startIndex)
+    {
+        if (!IsSeparator(command[startIndex]))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool CommandInterpreter::FindNextSeparator(size_t& startIndex, Command::RawCommand& command) const
+{
+    if (startIndex >= Command::MaxRawCommandLength)
+    {
+        return false;
+    }
+
+    for (; startIndex < Command::MaxRawCommandLength; ++startIndex)
+    {
+        if (IsSeparator(command[startIndex]))
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool CommandInterpreter::IsSeparator(char c) const
+{
+    for (auto& separator : Separators)
+    {
+        if (c == separator)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool CommandInterpreter::ExtractInteger(Command::RawCommand& command, size_t& index, uint32_t& outInt)
+{
+    try
+    {
+        outInt = std::stoi(&command[index], &index);
+    }
+    catch ([[maybe_unused]]int e)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 // void CommandInterpreter::ExtractName(Command& command)
@@ -51,9 +145,4 @@ void CommandInterpreter::Interpret(Command& command)
 //     {
 
 //     }
-// }
-
-// void CommandInterpreter::ConsumeSpaces()
-// {
-//     while (*mRawCommandBegin++ == ' ' && mRawCommandBegin != mRawCommandEnd);
 // }

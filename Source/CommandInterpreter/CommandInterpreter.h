@@ -12,11 +12,13 @@ public:
 
 private:
     static constexpr char RawCommandTerminator = '\0';
-    static constexpr char CommandArgSeparator = ' ';
+    static constexpr size_t SeparatorCount = 3;
+    const std::array<char, SeparatorCount> Separators = { '.', ':', ' ' };
 
+    bool FindNextNonSeparator(size_t& startIndex, Command::RawCommand& command) const;
+    bool FindNextSeparator(size_t& startIndex, Command::RawCommand& command) const;
+    bool IsSeparator(char c) const;
+    bool ExtractInteger(Command::RawCommand& command, size_t& index, uint32_t& outInt);
     // void ExtractName(Command& command);
     // void ExtractArgs(Command& command);
-    // void ConsumeSpaces();
-    // std::array<char, MaxRawCommandLength>::iterator mRawCommandBegin;
-    // std::array<char, MaxRawCommandLength>::iterator mRawCommandEnd;
 };

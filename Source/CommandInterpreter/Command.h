@@ -10,16 +10,23 @@ class Command
 {
 public:
     static constexpr size_t MaxRawCommandLength = 128;
+    typedef std::array<char, MaxRawCommandLength> RawCommand;
     static constexpr size_t MaxArguments = 8;
 
+    std::array<char, MaxRawCommandLength>& GetRawCommand();
     void SetName(CommandNames name);
     CommandNames GetName() const;
-    void SetArgument(const size_t index, char* arg);
+    void SetArgument(const size_t argIndex, const size_t rawCommandPositionIndex);
     const char* GetArgument(const size_t index) const;
-    std::array<char, MaxRawCommandLength> mRawCommand {};
+    size_t GetArgCount() const;
+    void SetSender(uint32_t id);
+    uint32_t GetSender() const;
+    void SetTarget(uint32_t id);
+    uint32_t GetTarget() const;
 
 private:
-    CommandNames mCommandName = CommandNames::None;
+    RawCommand mRawCommand {};
+    CommandNames mCommandName = CommandNames::none;
     size_t mArgCount = 0;
     uint32_t mSender = 0;
     uint32_t mTarget = 0;

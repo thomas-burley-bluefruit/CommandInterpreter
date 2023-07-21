@@ -15,47 +15,58 @@
 Command CreateRawCommand(std::string uartString)
 {
     Command command{};
-    std::copy(uartString.begin(), uartString.end(), command.mRawCommand.begin());
+    std::copy(uartString.begin(), uartString.end(), command.GetRawCommand().begin());
     return command;
 }
 
-// TEST(CommandInterpreterTests, command_name_extraced_correctly)
-// {
-//     // Given
-//     auto rawCommand = CreateRawCommand("foo");
-//     CommandInterpreter interpreter;
-
-//     // When
-//     auto command = interpreter.Interpret(rawCommand);
-
-//     // Then
-//     ASSERT_STREQ("foo", command.GetName());
-// }
-
-// TEST(CommandInterpreterTests, first_argument_extracted_correctly)
-// {
-//     // Given
-//     auto rawCommand = CreateRawCommand("foo bar");
-//     CommandInterpreter interpreter;
-
-//     // When
-//     auto command = interpreter.Interpret(rawCommand);
-
-//     // Then
-//     ASSERT_STREQ("foo", command.GetName());
-//     ASSERT_STREQ("bar", command.GetArgument(0));
-// }
-
-TEST(CommandInterpreterTests, command_name_extracted_correctly)
+TEST(CommandInterpreterTests, single_digit_sender_id_parsed_correctly)
 {
     // Given
-    auto command = CreateRawCommand("Id");
+    auto command = CreateRawCommand("1.2:test");
     CommandInterpreter interpreter;
 
     // When
     interpreter.Interpret(command);
 
     // Then
-    ASSERT_EQ(command.GetName(), CommandNames::Id);
+    ASSERT_EQ(1, command.GetSender());
 }
 
+TEST(CommandInterpreterTests, double_digit_sender_id_parsed_correctly)
+{
+    // Given
+    auto command = CreateRawCommand("12.2:test");
+    CommandInterpreter interpreter;
+
+    // When
+    interpreter.Interpret(command);
+
+    // Then
+    ASSERT_EQ(12, command.GetSender());
+}
+
+TEST(CommandInterpreterTests, target_id_parsed_correctly)
+{
+    // Given
+    auto command = CreateRawCommand("12.2:test");
+    CommandInterpreter interpreter;
+
+    // When
+    interpreter.Interpret(command);
+
+    // Then
+    ASSERT_EQ(2, command.GetTarget());
+}
+
+TEST(CommandInterpreterTests, command_name_extracted_correctly)
+{
+    // Given
+    auto command = CreateRawCommand("1.2:id");
+    CommandInterpreter interpreter;
+
+    // When
+    interpreter.Interpret(command);
+
+    // Then
+    ASSERT_EQ(command.GetName(), CommandNames::id);
+}
