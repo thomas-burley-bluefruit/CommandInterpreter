@@ -1,48 +1,59 @@
 #include "CommandInterpreter.h"
+#include <cstring>
+#include <iostream>
 
 CommandInterpreter::CommandInterpreter() {}
 
-Command CommandInterpreter::Interpret(std::array<char, MaxRawCommandLength> rawCommand)
+void CommandInterpreter::Interpret(Command& command)
 {
-    Command command{};
-
-    mRawCommandBegin = rawCommand.begin();
-    mRawCommandEnd = rawCommand.end();
-    ExtractName(command);
-
-    return command;
-}
-
-void CommandInterpreter::ExtractName(Command& command)
-{
-    std::array<char, Command::MaxCommandNameLength> commandName;
-    commandName.fill(0);
-    for (auto& ch : commandName)
+    char commandName[Command::MaxRawCommandLength];
+    for(size_t i = 0; i < Command::MaxRawCommandLength; i++)
     {
-        auto commandChar = *mRawCommandBegin;
-        if (commandChar == RawCommandTerminator || 
-            commandChar == CommandArgSeparator)
-        {
-            break;
-        }
-
-        ch = *mRawCommandBegin++;
+        commandName[i] = command.mRawCommand[i];
     }
 
-    command.SetName(commandName.data());
+    if (strncmp(commandName, "Id", Command::MaxRawCommandLength))
+        command.SetName(CommandNames::Id);
+    else
+        command.SetName(CommandNames::None);
+
+    std::cout << "command Name: " << commandName << '\n';
+
+    // mRawCommandBegin = rawCommand.begin();
+    // mRawCommandEnd = rawCommand.end();
+    // ExtractName(command);
 }
 
-void CommandInterpreter::ExtractArgs(Command& command)
-{
-    ConsumeSpaces();
-    size_t argIndex = 0;
-    while (mRawCommandBegin != mRawCommandEnd)
-    {
-        
-    }
-}
+// void CommandInterpreter::ExtractName(Command& command)
+// {
+//     std::array<char, Command::MaxCommandNameLength> commandName;
+//     commandName.fill(0);
+//     for (auto& ch : commandName)
+//     {
+//         auto commandChar = *mRawCommandBegin;
+//         if (commandChar == RawCommandTerminator || 
+//             commandChar == CommandArgSeparator)
+//         {
+//             break;
+//         }
 
-void CommandInterpreter::ConsumeSpaces()
-{
-    while (*mRawCommandBegin++ == ' ' && mRawCommandBegin != mRawCommandEnd);
-}
+//         ch = *mRawCommandBegin++;
+//     }
+
+//     command.SetName(commandName.data());
+// }
+
+// void CommandInterpreter::ExtractArgs(Command& command)
+// {
+//     ConsumeSpaces();
+//     size_t argIndex = 0;
+//     while (mRawCommandBegin != mRawCommandEnd)
+//     {
+
+//     }
+// }
+
+// void CommandInterpreter::ConsumeSpaces()
+// {
+//     while (*mRawCommandBegin++ == ' ' && mRawCommandBegin != mRawCommandEnd);
+// }
