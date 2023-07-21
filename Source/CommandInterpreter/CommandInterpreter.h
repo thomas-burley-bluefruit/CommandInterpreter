@@ -7,10 +7,8 @@
 class CommandInterpreter
 {
 public:
-    static constexpr size_t MaxRawCommandLength = 128;
-
     CommandInterpreter();
-    Command Interpret(std::array<char, MaxRawCommandLength> rawCommand);
+    void Interpret(Command& command);
 
 private:
     static constexpr char RawCommandTerminator = '\0';

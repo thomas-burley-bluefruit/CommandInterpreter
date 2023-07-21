@@ -5,6 +5,7 @@ set(SOURCES
         Command.h        
         CommandInterpreter.cpp
         CommandInterpreter.h
+        CommandNames.h
         )
 
 set(INCLUDES .)

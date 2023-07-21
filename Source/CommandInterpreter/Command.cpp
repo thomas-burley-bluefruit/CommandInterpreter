@@ -1,24 +1,24 @@
 #include "Command.h"
 #include <string>
 
-void Command::SetName(const char *name)
+void Command::SetName(CommandNames name)
 {
-    strncpy(mCommandName.data(), name, MaxCommandNameLength);
+    mCommandName = name;
 }
 
-const char* Command::GetName() const
+CommandNames Command::GetName() const
 {
-    return mCommandName.data();
+    return mCommandName;
 }
 
-void Command::SetArgument(const size_t index, const char* arg)
+void Command::SetArgument(const size_t index, char* arg)
 {
     if (index > MaxArguments)
     {
-            return;
+        return;
     }
 
-    strncpy(mArguments[index].data(), arg, MaxCommandArgLength);
+    mArguments[index] = arg;
 }
 
 const char* Command::GetArgument(const size_t index) const
@@ -28,5 +28,5 @@ const char* Command::GetArgument(const size_t index) const
         return "";
     }
 
-    return mArguments[index].data();
+    return mArguments[index];
 }
