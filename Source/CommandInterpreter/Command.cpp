@@ -38,14 +38,14 @@ uint32_t Command::GetTarget() const
 }
 
 
-void Command::SetArgument(const size_t argumentIndex, const size_t rawCommandPositionIndex)
+void Command::AddArgument(const size_t rawCommandPositionIndex)
 {
-    if (argumentIndex > MaxArguments || rawCommandPositionIndex > MaxRawCommandLength)
+    if (rawCommandPositionIndex > MaxRawCommandLength)
     {
         return;
     }
 
-    mArguments[argumentIndex] = &mRawCommand[rawCommandPositionIndex];
+    mArguments[mArgCount++] = &mRawCommand[rawCommandPositionIndex];
 }
 
 const char* Command::GetArgument(const size_t index) const

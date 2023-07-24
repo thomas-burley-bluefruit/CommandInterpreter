@@ -22,7 +22,7 @@ Command CreateRawCommand(std::string uartString)
 TEST(CommandInterpreterTests, single_digit_sender_id_parsed_correctly)
 {
     // Given
-    auto command = CreateRawCommand("1.2:test");
+    auto command = CreateRawCommand("1 2 test\n");
     CommandInterpreter interpreter;
 
     // When
@@ -35,7 +35,7 @@ TEST(CommandInterpreterTests, single_digit_sender_id_parsed_correctly)
 TEST(CommandInterpreterTests, double_digit_sender_id_parsed_correctly)
 {
     // Given
-    auto command = CreateRawCommand("12.2:test");
+    auto command = CreateRawCommand("12 2 test\n");
     CommandInterpreter interpreter;
 
     // When
@@ -48,7 +48,7 @@ TEST(CommandInterpreterTests, double_digit_sender_id_parsed_correctly)
 TEST(CommandInterpreterTests, target_id_parsed_correctly)
 {
     // Given
-    auto command = CreateRawCommand("12.2:test");
+    auto command = CreateRawCommand("12 2 test\n");
     CommandInterpreter interpreter;
 
     // When
@@ -58,10 +58,10 @@ TEST(CommandInterpreterTests, target_id_parsed_correctly)
     ASSERT_EQ(2, command.GetTarget());
 }
 
-TEST(CommandInterpreterTests, command_name_extracted_correctly)
+TEST(CommandInterpreterTests, command_name_parsed_correctly)
 {
     // Given
-    auto command = CreateRawCommand("1.2:id");
+    auto command = CreateRawCommand("1 2 id\n");
     CommandInterpreter interpreter;
 
     // When
@@ -69,4 +69,46 @@ TEST(CommandInterpreterTests, command_name_extracted_correctly)
 
     // Then
     ASSERT_EQ(command.GetName(), CommandNames::id);
+}
+
+TEST(CommandInterpreterTests, one_argument_parsed_correctly)
+{
+    // Given
+    auto command = CreateRawCommand("1 2 id test\n");
+    CommandInterpreter interpreter;
+
+    // When
+    interpreter.Interpret(command);
+
+    // Then
+    ASSERT_STREQ(command.GetArgument(0), "test");
+}
+
+TEST(CommandInterpreterTests, two_arguments_parsed_correctly)
+{
+    // Given
+    auto command = CreateRawCommand("1 2 id test two\n");
+    CommandInterpreter interpreter;
+
+    // When
+    interpreter.Interpret(command);
+
+    // Then
+    ASSERT_STREQ(command.GetArgument(0), "test");
+    ASSERT_STREQ(command.GetArgument(1), "two");
+}
+
+TEST(CommandInterpreterTests, three_arguments_parsed_correctly)
+{
+    // Given
+    auto command = CreateRawCommand("1 2 id test two three\n");
+    CommandInterpreter interpreter;
+
+    // When
+    interpreter.Interpret(command);
+
+    // Then
+    ASSERT_STREQ(command.GetArgument(0), "test");
+    ASSERT_STREQ(command.GetArgument(1), "two");
+    ASSERT_STREQ(command.GetArgument(2), "three");
 }

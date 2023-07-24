@@ -16,7 +16,7 @@ public:
     std::array<char, MaxRawCommandLength>& GetRawCommand();
     void SetName(CommandNames name);
     CommandNames GetName() const;
-    void SetArgument(const size_t argIndex, const size_t rawCommandPositionIndex);
+    void AddArgument(const size_t rawCommandPositionIndex);
     const char* GetArgument(const size_t index) const;
     size_t GetArgCount() const;
     void SetSender(uint32_t id);

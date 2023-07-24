@@ -12,8 +12,10 @@ public:
 
 private:
     static constexpr char RawCommandTerminator = '\0';
-    static constexpr size_t SeparatorCount = 3;
-    const std::array<char, SeparatorCount> Separators = { '.', ':', ' ' };
+    static constexpr size_t SeparatorCount = 2;
+    const std::array<char, SeparatorCount> Separators = { ' ', '\n' };
+
+    bool ParseSender(Command& command, size_t& index);
 
     bool FindNextNonSeparator(size_t& startIndex, Command::RawCommand& command) const;
     bool FindNextSeparator(size_t& startIndex, Command::RawCommand& command) const;

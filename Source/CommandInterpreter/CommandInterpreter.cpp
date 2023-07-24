@@ -1,5 +1,6 @@
 #include "CommandInterpreter.h"
 #include <string>
+#include <cstdlib>
 
 CommandInterpreter::CommandInterpreter() {}
 
@@ -43,17 +44,47 @@ void CommandInterpreter::Interpret(Command& command)
         return;
     }
 
+    bool hasArguments = rawCommand[commandNamePartEndIndex] == ' ';
     rawCommand[commandNamePartEndIndex] = '\0';
     const char* commandNameString = &rawCommand[commandIndex];
-    auto commandName = CommandNames::none;
 
+    auto commandName = CommandNames::none;
     if (!StringToCommandName(commandNameString, commandName))
     {
         return;
     }
     command.SetName(commandName);
 
-    // command.SetArgument(command.GetArgCount(), commandIndex);
+    if (!hasArguments)
+    {
+        return;
+    }
+
+    commandIndex = commandNamePartEndIndex;
+
+    // Arguments
+    while (commandIndex < Command::MaxRawCommandLength)
+    {
+        if (rawCommand[commandIndex++] == '\n')
+        {
+            break;
+        }
+
+        size_t argumentPartEndIndex = commandIndex;
+        if (!FindNextSeparator(argumentPartEndIndex, rawCommand))
+        {
+            return;
+        }
+
+        rawCommand[argumentPartEndIndex] = '\0';
+        command.AddArgument(commandIndex);
+        commandIndex = argumentPartEndIndex;
+    }
+}
+
+bool CommandInterpreter::ParseSender(Command& command, size_t& index)
+{
+
 }
 
 bool CommandInterpreter::FindNextNonSeparator(size_t& startIndex, Command::RawCommand& command) const
@@ -106,14 +137,9 @@ bool CommandInterpreter::IsSeparator(char c) const
 
 bool CommandInterpreter::ExtractInteger(Command::RawCommand& command, size_t& index, uint32_t& outInt)
 {
-    try
-    {
-        outInt = std::stoi(&command[index], &index);
-    }
-    catch ([[maybe_unused]]int e)
-    {
-        return false;
-    }
+    char* nextCharacter = nullptr;
+    outInt = strtol(&command[index], &nextCharacter, 10);
+    index += (nextCharacter - &command[index]);
 
     return true;
 }
