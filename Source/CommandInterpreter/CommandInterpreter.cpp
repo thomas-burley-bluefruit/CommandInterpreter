@@ -7,85 +7,121 @@ CommandInterpreter::CommandInterpreter() {}
 void CommandInterpreter::Interpret(Command& command)
 {
     size_t commandIndex = 0;
-    auto& rawCommand = command.GetRawCommand();
 
-    // Sender
-    uint32_t sender = 0;
-    if (!ExtractInteger(rawCommand, commandIndex, sender))
-    {
-        return;
-    }
-    command.SetSender(sender);
-
-    // Skip separators
-    if (!FindNextNonSeparator(commandIndex, rawCommand))
+    if (!ParseSender(command, commandIndex))
     {
         return;
     }
 
-    // Target
-    uint32_t target = 0;
-    if (!ExtractInteger(rawCommand, commandIndex, target))
-    {
-        return;
-    }
-    command.SetTarget(target);
-
-    // Skip separators
-    if (!FindNextNonSeparator(commandIndex, rawCommand))
+    if (!ParseTarget(command, commandIndex))
     {
         return;
     }
 
-    // Command name
-    size_t commandNamePartEndIndex = commandIndex;
-    if (!FindNextSeparator(commandNamePartEndIndex, rawCommand))
+    if (!ParseCommand(command, commandIndex))
     {
         return;
     }
 
-    bool hasArguments = rawCommand[commandNamePartEndIndex] == ' ';
-    rawCommand[commandNamePartEndIndex] = '\0';
-    const char* commandNameString = &rawCommand[commandIndex];
-
-    auto commandName = CommandNames::none;
-    if (!StringToCommandName(commandNameString, commandName))
+    if (!ParseArguments(command, commandIndex))
     {
         return;
-    }
-    command.SetName(commandName);
-
-    if (!hasArguments)
-    {
-        return;
-    }
-
-    commandIndex = commandNamePartEndIndex;
-
-    // Arguments
-    while (commandIndex < Command::MaxRawCommandLength)
-    {
-        if (rawCommand[commandIndex++] == '\n')
-        {
-            break;
-        }
-
-        size_t argumentPartEndIndex = commandIndex;
-        if (!FindNextSeparator(argumentPartEndIndex, rawCommand))
-        {
-            return;
-        }
-
-        rawCommand[argumentPartEndIndex] = '\0';
-        command.AddArgument(commandIndex);
-        commandIndex = argumentPartEndIndex;
     }
 }
 
 bool CommandInterpreter::ParseSender(Command& command, size_t& index)
 {
+    uint32_t sender = 0;
+    auto& rawCommand = command.GetRawCommand();
 
+    if (!ExtractInteger(rawCommand, index, sender))
+    {
+        return false;
+    }
+    command.SetSender(sender);
+
+    // Skip separators
+    if (!FindNextNonSeparator(index, rawCommand))
+    {
+        return false;
+    }
+
+    return true;
 }
+
+bool CommandInterpreter::ParseTarget(Command& command, size_t& index)
+{
+    uint32_t target = 0;
+    auto& rawCommand = command.GetRawCommand();
+
+    if (!ExtractInteger(rawCommand, index, target))
+    {
+        return false;
+    }
+    command.SetTarget(target);
+
+    // Skip separators
+    if (!FindNextNonSeparator(index, rawCommand))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool CommandInterpreter::ParseCommand(Command& command, size_t& index)
+{
+    size_t commandNamePartEndIndex = index;
+    auto& rawCommand = command.GetRawCommand();
+
+    if (!FindNextSeparator(commandNamePartEndIndex, rawCommand))
+    {
+        return false;
+    }
+
+    bool hasArguments = rawCommand[commandNamePartEndIndex] == ' ';
+    rawCommand[commandNamePartEndIndex] = '\0';
+
+    const char* commandNameString = &rawCommand[index];
+    auto commandName = CommandNames::none;
+    if (!StringToCommandName(commandNameString, commandName))
+    {
+        return false;
+    }
+    command.SetName(commandName);
+
+    if (!hasArguments)
+    {
+        return false;
+    }
+
+    index = commandNamePartEndIndex;
+    return true;
+}
+
+bool CommandInterpreter::ParseArguments(Command& command, size_t& index)
+{
+    auto& rawCommand = command.GetRawCommand();
+    while (index < Command::MaxRawCommandLength)
+    {
+        if (rawCommand[index++] == '\n')
+        {
+            break;
+        }
+
+        size_t argumentPartEndIndex = index;
+        if (!FindNextSeparator(argumentPartEndIndex, rawCommand))
+        {
+            return false;
+        }
+
+        rawCommand[argumentPartEndIndex] = '\0';
+        command.AddArgument(index);
+        index = argumentPartEndIndex;
+    }
+    return true;
+}
+
 
 bool CommandInterpreter::FindNextNonSeparator(size_t& startIndex, Command::RawCommand& command) const
 {

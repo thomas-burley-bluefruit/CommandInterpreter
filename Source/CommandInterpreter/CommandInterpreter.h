@@ -16,6 +16,9 @@ private:
     const std::array<char, SeparatorCount> Separators = { ' ', '\n' };
 
     bool ParseSender(Command& command, size_t& index);
+    bool ParseTarget(Command& command, size_t& index);
+    bool ParseCommand(Command& command, size_t& index);
+    bool ParseArguments(Command& command, size_t& index);
 
     bool FindNextNonSeparator(size_t& startIndex, Command::RawCommand& command) const;
     bool FindNextSeparator(size_t& startIndex, Command::RawCommand& command) const;

@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 
 static constexpr size_t MaxCommandNameLength = 16;
 
