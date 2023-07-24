@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25.2)
 
-project(CommandInterpreter)
+project(Terminal)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -16,5 +16,5 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_subdirectory(source/CommandInterpreter)
+add_subdirectory(source/Terminal)
 add_subdirectory(source/Tests)

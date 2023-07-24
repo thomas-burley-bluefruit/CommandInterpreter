@@ -1,12 +1,14 @@
-set(NAME CommandInterpreter)
+set(NAME Terminal)
 
 set(SOURCES
         Command.cpp
-        Command.h        
+        Command.h
         CommandInterpreter.cpp
         CommandInterpreter.h
         CommandNames.cpp
         CommandNames.h
+        Terminal.cpp
+        Terminal.h
         )
 
 set(INCLUDES .)
