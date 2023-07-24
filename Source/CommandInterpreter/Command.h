@@ -16,16 +16,19 @@ public:
     std::array<char, MaxRawCommandLength>& GetRawCommand();
     void SetName(CommandNames name);
     CommandNames GetName() const;
-    void AddArgument(const size_t rawCommandPositionIndex);
+    bool AddArgument(const size_t rawCommandPositionIndex);
     const char* GetArgument(const size_t index) const;
     size_t GetArgCount() const;
     void SetSender(uint32_t id);
     uint32_t GetSender() const;
     void SetTarget(uint32_t id);
     uint32_t GetTarget() const;
+    void SetIsValid(const bool valid);
+    bool GetIsValid() const;
 
 private:
     RawCommand mRawCommand {};
+    bool mIsValid = false;
     CommandNames mCommandName = CommandNames::none;
     size_t mArgCount = 0;
     uint32_t mSender = 0;

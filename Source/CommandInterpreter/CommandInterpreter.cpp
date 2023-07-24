@@ -8,14 +8,17 @@ void CommandInterpreter::Interpret(Command& command)
 {
     size_t commandIndex = 0;
 
-    if (!ParseSender(command, commandIndex))
+    if (CharIsNumeric(command.GetRawCommand()[0]))
     {
-        return;
-    }
+        if (!ParseSender(command, commandIndex))
+        {
+            return;
+        }
 
-    if (!ParseTarget(command, commandIndex))
-    {
-        return;
+        if (!ParseTarget(command, commandIndex))
+        {
+            return;
+        }
     }
 
     if (!ParseCommand(command, commandIndex))
@@ -27,6 +30,8 @@ void CommandInterpreter::Interpret(Command& command)
     {
         return;
     }
+
+    command.SetIsValid(true);
 }
 
 bool CommandInterpreter::ParseSender(Command& command, size_t& index)
@@ -40,19 +45,20 @@ bool CommandInterpreter::ParseSender(Command& command, size_t& index)
     }
     command.SetSender(sender);
 
+    return true;
+}
+
+bool CommandInterpreter::ParseTarget(Command& command, size_t& index)
+{
+    auto& rawCommand = command.GetRawCommand();
+
     // Skip separators
     if (!FindNextNonSeparator(index, rawCommand))
     {
         return false;
     }
 
-    return true;
-}
-
-bool CommandInterpreter::ParseTarget(Command& command, size_t& index)
-{
     uint32_t target = 0;
-    auto& rawCommand = command.GetRawCommand();
 
     if (!ExtractInteger(rawCommand, index, target))
     {
@@ -60,26 +66,27 @@ bool CommandInterpreter::ParseTarget(Command& command, size_t& index)
     }
     command.SetTarget(target);
 
+    return true;
+}
+
+bool CommandInterpreter::ParseCommand(Command& command, size_t& index)
+{
+    auto& rawCommand = command.GetRawCommand();
+
     // Skip separators
     if (!FindNextNonSeparator(index, rawCommand))
     {
         return false;
     }
 
-    return true;
-}
-
-bool CommandInterpreter::ParseCommand(Command& command, size_t& index)
-{
     size_t commandNamePartEndIndex = index;
-    auto& rawCommand = command.GetRawCommand();
 
+    // Find end of word
     if (!FindNextSeparator(commandNamePartEndIndex, rawCommand))
     {
         return false;
     }
 
-    bool hasArguments = rawCommand[commandNamePartEndIndex] == ' ';
     rawCommand[commandNamePartEndIndex] = '\0';
 
     const char* commandNameString = &rawCommand[index];
@@ -90,12 +97,7 @@ bool CommandInterpreter::ParseCommand(Command& command, size_t& index)
     }
     command.SetName(commandName);
 
-    if (!hasArguments)
-    {
-        return false;
-    }
-
-    index = commandNamePartEndIndex;
+    index = commandNamePartEndIndex + 1;
     return true;
 }
 
@@ -104,20 +106,31 @@ bool CommandInterpreter::ParseArguments(Command& command, size_t& index)
     auto& rawCommand = command.GetRawCommand();
     while (index < Command::MaxRawCommandLength)
     {
-        if (rawCommand[index++] == '\n')
+        size_t argumentPartEndIndex = index;
+        if (!FindNextSeparator(argumentPartEndIndex, rawCommand))
         {
             break;
         }
 
-        size_t argumentPartEndIndex = index;
-        if (!FindNextSeparator(argumentPartEndIndex, rawCommand))
+        bool endOfCommand = false;
+        if (rawCommand[argumentPartEndIndex] == RawCommandTerminator)
+        {
+            endOfCommand = true;
+        }
+
+        rawCommand[argumentPartEndIndex] = '\0';
+        
+        if (!command.AddArgument(index))
         {
             return false;
         }
 
-        rawCommand[argumentPartEndIndex] = '\0';
-        command.AddArgument(index);
-        index = argumentPartEndIndex;
+        index = argumentPartEndIndex + 1;
+
+        if (endOfCommand)
+        {
+            break;
+        }
     }
     return true;
 }
@@ -150,7 +163,13 @@ bool CommandInterpreter::FindNextSeparator(size_t& startIndex, Command::RawComma
 
     for (; startIndex < Command::MaxRawCommandLength; ++startIndex)
     {
-        if (IsSeparator(command[startIndex]))
+        const auto currentChar = command[startIndex];
+        if (currentChar == '\0')
+        {
+            return false;
+        }
+
+        if (IsSeparator(currentChar) || currentChar == RawCommandTerminator)
         {
             return true;
         }
@@ -161,50 +180,30 @@ bool CommandInterpreter::FindNextSeparator(size_t& startIndex, Command::RawComma
 
 bool CommandInterpreter::IsSeparator(char c) const
 {
-    for (auto& separator : Separators)
-    {
-        if (c == separator)
-        {
-            return true;
-        }
-    }
-    return false;
+    return c == Separator;
 }
 
 bool CommandInterpreter::ExtractInteger(Command::RawCommand& command, size_t& index, uint32_t& outInt)
 {
+    if (!CharIsNumeric(command[index]))
+    {
+        return false;
+    }
+
     char* nextCharacter = nullptr;
     outInt = strtol(&command[index], &nextCharacter, 10);
     index += (nextCharacter - &command[index]);
 
+    // Ensure integer is not part of a word
+    if (!IsSeparator(command[index]))
+    {
+        return false;
+    }
+
     return true;
 }
 
-// void CommandInterpreter::ExtractName(Command& command)
-// {
-//     std::array<char, Command::MaxCommandNameLength> commandName;
-//     commandName.fill(0);
-//     for (auto& ch : commandName)
-//     {
-//         auto commandChar = *mRawCommandBegin;
-//         if (commandChar == RawCommandTerminator || 
-//             commandChar == CommandArgSeparator)
-//         {
-//             break;
-//         }
-
-//         ch = *mRawCommandBegin++;
-//     }
-
-//     command.SetName(commandName.data());
-// }
-
-// void CommandInterpreter::ExtractArgs(Command& command)
-// {
-//     ConsumeSpaces();
-//     size_t argIndex = 0;
-//     while (mRawCommandBegin != mRawCommandEnd)
-//     {
-
-//     }
-// }
+bool CommandInterpreter::CharIsNumeric(const char c) const
+{
+    return c >= '0' && c <= '9';
+}

@@ -38,14 +38,16 @@ uint32_t Command::GetTarget() const
 }
 
 
-void Command::AddArgument(const size_t rawCommandPositionIndex)
+bool Command::AddArgument(const size_t rawCommandPositionIndex)
 {
-    if (rawCommandPositionIndex > MaxRawCommandLength)
+    if (rawCommandPositionIndex > MaxRawCommandLength || mArgCount >= MaxArguments)
     {
-        return;
+        return false;
     }
 
     mArguments[mArgCount++] = &mRawCommand[rawCommandPositionIndex];
+
+    return true;
 }
 
 const char* Command::GetArgument(const size_t index) const
@@ -61,4 +63,14 @@ const char* Command::GetArgument(const size_t index) const
 size_t Command::GetArgCount() const
 {
     return mArgCount;
+}
+
+void Command::SetIsValid(const bool valid)
+{
+    mIsValid = valid;
+}
+
+bool Command::GetIsValid() const
+{
+    return mIsValid;
 }
