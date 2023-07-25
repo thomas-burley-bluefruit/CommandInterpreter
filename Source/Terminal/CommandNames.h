@@ -6,9 +6,9 @@ static constexpr size_t MaxCommandNameLength = 16;
 enum class CommandNames
 {
     none,
+    test,
     id,
-    foo,
-    bar,
+    help,
     count
 };
 

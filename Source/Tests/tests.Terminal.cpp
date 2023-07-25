@@ -1,36 +1,36 @@
 #include "gtest/gtest.h"
-#include "Terminal.h"
 #include "Command.h"
+#include "CommandHandlerSpy.h"
+#include "Terminal.h"
+#include "UartSpy.h"
 
-TEST(TerminalTests, OnReceiveInterrupt_adds_char_to_command_buffer)
+class TerminalTests : public ::testing::Test
+{
+public:
+  TerminalTests() : mTerminal(mUart)
+  {}
+
+protected:
+    UartSpy mUart;
+    Terminal mTerminal;
+};
+
+TEST_F(TerminalTests, command_is_passed_to_registered_handler)
 {
     // Given
-    Command command;
-    Terminal terminal(command);
-    const uint8_t uartChar = 'c';
+    std::string commandString = "test\n";
+    CommandHandlerSpy handler;
+    mTerminal.RegisterCommandHandler(&handler);
 
     // When
-    terminal.OnReceiveInterrupt(uartChar);
+    for (const auto& ch : commandString)
+    {
+        mTerminal.OnReceiveInterrupt(ch);
+    }
 
     // Then
-    const size_t startIndex = 0;
-    ASSERT_EQ(command.GetRawCommand()[startIndex], uartChar);
+    ASSERT_TRUE(handler.RunCalled);
+    ASSERT_EQ(CommandNames::test, handler.RunCommand.GetName());
 }
 
-TEST(TerminalTests, OnReceiveInterrupt_increments_index_each_call)
-{
-    // Given
-    Command command;
-    Terminal terminal(command);
-
-    const size_t startIndex = 0;
-    ASSERT_EQ(terminal.CommandIndex(), startIndex);
-
-    // When Then
-    terminal.OnReceiveInterrupt('h');
-    ASSERT_EQ(terminal.CommandIndex(), startIndex + 1);
-
-    // When Then
-    terminal.OnReceiveInterrupt('i');
-    ASSERT_EQ(terminal.CommandIndex(), startIndex + 2);
-}
+/// Test too many handlers

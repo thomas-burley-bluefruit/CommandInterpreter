@@ -10,8 +10,9 @@ public:
     CommandInterpreter();
     void Interpret(Command& command);
 
+    static constexpr char CommandTerminator = '\n';
+
 private:
-    static constexpr char RawCommandTerminator = '\n';
     static constexpr char Separator = ' ';
 
     bool ParseSender(Command& command, size_t& index);

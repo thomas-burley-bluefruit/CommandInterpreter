@@ -113,7 +113,7 @@ bool CommandInterpreter::ParseArguments(Command& command, size_t& index)
         }
 
         bool endOfCommand = false;
-        if (rawCommand[argumentPartEndIndex] == RawCommandTerminator)
+        if (rawCommand[argumentPartEndIndex] == CommandTerminator)
         {
             endOfCommand = true;
         }
@@ -169,7 +169,7 @@ bool CommandInterpreter::FindNextSeparator(size_t& startIndex, Command::RawComma
             return false;
         }
 
-        if (IsSeparator(currentChar) || currentChar == RawCommandTerminator)
+        if (IsSeparator(currentChar) || currentChar == CommandTerminator)
         {
             return true;
         }

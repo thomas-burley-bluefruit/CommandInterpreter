@@ -16,5 +16,7 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+add_subdirectory(source/Interfaces)
 add_subdirectory(source/Terminal)
+add_subdirectory(source/Tests/Doubles)
 add_subdirectory(source/Tests)

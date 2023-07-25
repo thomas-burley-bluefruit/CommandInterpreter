@@ -1,7 +1,8 @@
 #include "Terminal.h"
 
-Terminal::Terminal(Command& command) :
-    mCommand(command)
+#include <cassert>
+
+Terminal::Terminal(UartInterface& uart) : mUart(uart)
 {}
 
 void Terminal::OnReceiveInterrupt(const uint8_t byte)
@@ -10,7 +11,7 @@ void Terminal::OnReceiveInterrupt(const uint8_t byte)
     mCommand.GetRawCommand()[mCommandIndex++] = character;
 }
 
-size_t Terminal::CommandIndex()
+void Terminal::RegisterCommandHandler(CommandHandlerInterface* handler)
 {
-    return mCommandIndex;
+    mCommandHandlers[mCommandHandlerCount++] = handler;
 }

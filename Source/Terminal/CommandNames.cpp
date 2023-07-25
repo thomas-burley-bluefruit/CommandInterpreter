@@ -5,9 +5,9 @@
 const char* CommandNameStrings[static_cast<size_t>(CommandNames::count)]
 {
     "none",
+    "test",
     "id",
-    "foo",
-    "bar"
+    "help"
 };
 
 bool StringToCommandName(const char* string, CommandNames& command)

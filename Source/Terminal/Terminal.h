@@ -1,15 +1,25 @@
 #pragma once
+
 #include "Command.h"
+#include "CommandHandlerInterface.h"
+#include "CommandInterpreter.h"
+#include "UartInterface.h"
 
 class Terminal
 {
 public:
-    Terminal(Command& command);
+    Terminal(UartInterface& uart);
     void OnReceiveInterrupt(const uint8_t byte);
-
-    size_t CommandIndex();
+    void RegisterCommandHandler(CommandHandlerInterface* handler);
 
 private:
-    Command& mCommand;
+    static constexpr size_t MaxCommandHandlers = 32;
+
+    size_t mCommandHandlerCount = 0;
+    std::array<CommandHandlerInterface*, MaxCommandHandlers> 
+        mCommandHandlers { nullptr };
+    UartInterface& mUart;
+    Command mCommand;
+    CommandInterpreter mCommandInterpreter;
     size_t mCommandIndex = 0;
 };
