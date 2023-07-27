@@ -12,9 +12,9 @@ public:
     void OnReceiveInterrupt(const uint8_t byte);
     void RegisterCommandHandler(CommandHandlerInterface* handler);
 
-private:
     static constexpr size_t MaxCommandHandlers = 32;
 
+private:
     size_t mCommandHandlerCount = 0;
     std::array<CommandHandlerInterface*, MaxCommandHandlers> 
         mCommandHandlers { nullptr };

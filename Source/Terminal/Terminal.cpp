@@ -38,5 +38,6 @@ void Terminal::OnReceiveInterrupt(const uint8_t byte)
 
 void Terminal::RegisterCommandHandler(CommandHandlerInterface* handler)
 {
+    assert(mCommandHandlerCount < MaxCommandHandlers);
     mCommandHandlers[mCommandHandlerCount++] = handler;
 }

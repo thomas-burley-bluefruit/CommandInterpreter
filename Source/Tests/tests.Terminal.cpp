@@ -33,4 +33,32 @@ TEST_F(TerminalTests, command_is_passed_to_registered_handler)
     ASSERT_EQ(CommandNames::test, handler.RunCommand.GetName());
 }
 
-/// Test too many handlers
+TEST_F(TerminalTests, can_not_register_above_max_commands)
+{
+  // Given
+    CommandHandlerSpy handler;
+    for (size_t i = 0; i < Terminal::MaxCommandHandlers; i++)
+    {
+        mTerminal.RegisterCommandHandler(&handler);
+    }
+
+    // When Then
+    EXPECT_DEATH(mTerminal.RegisterCommandHandler(&handler), "");
+}
+
+// WIP
+// TEST_F(TerminalTests, malformed_command_name_sets_invalid_flag)
+// {
+//     // Given
+//     std::string commandString = "invalid\n";
+//     CommandHandlerSpy handler;
+//     mTerminal.RegisterCommandHandler(&handler);
+
+//     // When
+//     for (const auto& ch : commandString)
+//     {
+//         mTerminal.OnReceiveInterrupt(ch);
+//     }
+
+//     // Then
+// }
